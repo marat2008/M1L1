@@ -1,0 +1,17 @@
+from random import randint
+from time import sleep
+
+number = randint(0, 1)
+
+print('Бросаю монетку...')
+sleep(1)
+print('1')
+sleep(1)
+print('2')
+sleep(1)
+print('3')
+sleep(1)
+if number == 0:
+    print('Выпал орел!')
+else:
+    print('Выпала решка!')
