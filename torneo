@@ -1,17 +1,25 @@
-from random import randint
-from time import sleep
+import discord
+from login import gen_pass
+# Переменная intents - хранит привилегии бота
+intents = discord.Intents.default()
+# Включаем привелегию на чтение сообщений
+intents.message_content = True
+# Создаем бота в переменной client и передаем все привелегии
+client = discord.Client(intents=intents)
 
-number = randint(0, 1)
+@client.event
+async def on_ready():
+    print(f'We have logged in as {client.user}')
 
-print('Бросаю монетку...')
-sleep(1)
-print('1')
-sleep(1)
-print('2')
-sleep(1)
-print('3')
-sleep(1)
-if number == 0:
-    print('Выпал орел!')
-else:
-    print('Выпала решка!')
+@client.event
+async def on_message(message):
+    if message.author == client.user:
+        return
+    if message.content.startswith('$hello'):
+        await message.channel.send("Hi!")
+    elif message.content.startswith('пароль'):
+        await message.channel.send(gen_pass(10))
+    else:
+        await message.channel.send(message.content)
+
+client.run("MTEwNzE1MDQwNTUyNTMyNzk5Mw.GjSVgx.mr8Sg_mAtnrqTBddjYbs4l9dYI9-pPjmocWA-g")
