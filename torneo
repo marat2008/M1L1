@@ -1,21 +1,29 @@
 import discord
+from discord.ext import commands
 from login import gen_pass
 from login import gen_emodji
 from login import flip_coin
+
+description = '''An example bot to showcase the discord.ext.commands extension
+module.
+
+There are a number of utility commands being showcased here.'''
+
 # Переменная intents - хранит привилегии бота
 intents = discord.Intents.default()
-# Включаем привелегию на чтение сообщений
+intents.members = True
 intents.message_content = True
-# Создаем бота в переменной client и передаем все привелегии
-client = discord.Client(intents=intents)
-print("Напишите help чтобы узнать все команды")
-@client.event
-async def on_ready():
-    print(f'We have logged in as {client.user}')
 
-@client.event
+bot = commands.Bot(command_prefix='?', description=description, intents=intents)
+
+print("Напишите help чтобы узнать все команды")
+@bot.event
+async def on_ready():
+    print(f'We have logged in as {bot.user}')
+
+@bot.event
 async def on_message(message):
-    if message.author == client.user:
+    if message.author == bot.user:
         return
     
     if message.content.startswith('привет'):
@@ -32,4 +40,4 @@ async def on_message(message):
         await message.channel.send("Я не понимаю такую команду!")
     
 
-client.run("Ваш токен:")
+bot.run("ваш токен")
