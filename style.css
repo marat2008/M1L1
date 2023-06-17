@@ -30,8 +30,8 @@ body {
     }
 }
 
-h1 {
-    animation: color-change 3s infinite;
+h1:hover {
+  animation: color-change 3s infinite; 
 }
 h2 {
     color: #5988FF; /* Цвет заголовка */
