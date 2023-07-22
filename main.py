@@ -1,21 +1,80 @@
-from flask import Flask
-import random
+from flask import Flask, render_template,request, redirect
+#Подключение библиотеки баз данных
+from flask_sqlalchemy import SQLAlchemy
+
+
 app = Flask(__name__)
-facts_list = ["Большинство людей, страдающих технологической зависимостью, испытывают сильный стресс, когда они находятся вне зоны покрытия сети или не могут использовать свои устройства." , "Согласно исследованию, проведенному в 2018 году, более 50% людей в возрасте от 18 до 34 лет считают себя зависимыми от своих смартфонов.","Изучение технологической зависимости является одной из наиболее актуальных областей научных исследований в настоящее время." , "Согласно исследованию, проведенному в 2019 году, более 60% людей отвечают на рабочие сообщения в своих смартфонах в течение 15 минут после того, как они вышли с работы.","Один из способов борьбы с технологической зависимостью - это поиск занятий, которые приносят удовольствие и улучшают настроение.","Илон Маск утверждает, что социальные сети созданы для того, чтобы удерживать нас внутри платформы, чтобы мы тратили как можно больше времени на просмотр контента.","Илон Маск также выступает за регулирование социальных сетей и защиту личных данных пользователей. Он утверждает, что социальные сети собирают огромное количество информации о нас, которую потом можно использовать для манипулирования нашими мыслями и поведением.","Социальные сети имеют как позитивные, так и негативные стороны, и мы должны быть более осознанными в использовании этих платформ."]
+#Подключение SQLite
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///diary.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+#Создание db
+db = SQLAlchemy(app )
 
-@app.route("/")
-def index():
-    return '<h1>Привет, это сайт с разными фактами!</h1>''<a href="/random_fact">Посмотреть случайный факт!</a>''<a href="/coin">Бросить монетку</a>'
-
-
+#Задание №1. Создай таблицу БД
+class Card(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(100), nullable=False)
+    subtitle = db.Column(db.String(100), nullable=False)
+    text = db.Column(db.String(100), nullable=False)
     
-@app.route("/random_fact")
-def random_facts():
-    return f'<p>{random.choice(facts_list)}</p>''<a href="/coin">А тут можно бросить монетку</a>'
+    def __repr__(self):
+        return f'<Card {self.id}>'
 
-coin = ["ОРЁЛ","РЕШКА"]
-@app.route("/coin")
-def coll():
-    return f'<h1>Тебе выпал(а){random.choice(coin)}!</h1>'
 
-app.run(debug=True)
+
+
+
+
+
+
+
+
+
+#Запуск страницы с контентом
+@app.route('/')
+def index():
+    #Отображение объектов из БД
+    #Задание №2. Отоброзить объекты из БД в index.html
+    cards = Card.query.order_by(Card.id).all()
+
+    return render_template('index.html',
+                           cards = cards
+
+                           )
+
+#Запуск страницы c картой
+@app.route('/card/<int:id>')
+def card(id):
+    #Задание №2. Отоброзить нужную карточку по id
+    Card.query.get(id)
+
+    return render_template('card.html', card=card)
+
+#Запуск страницы c созданием карты
+@app.route('/create')
+def create():
+    return render_template('create_card.html')
+
+#Форма карты
+@app.route('/form_create', methods=['GET','POST'])
+def form_create():
+    if request.method == 'POST':
+        title =  request.form['title']
+        subtitle =  request.form['subtitle']
+        text =  request.form['text']
+
+        #Задание №2. Создайте сопосб записи данных в БД
+        card = Card(title=title, subtitle=subtitle, text=text)
+        db.session.add(card)
+        db.session.commit()
+
+
+
+
+        return redirect('/')
+    else:
+        return render_template('create_card.html')
+
+
+if __name__ == "__main__":
+    app.run(debug=True)
